@@ -24,7 +24,7 @@ However, a user may only be interested in the results for some of the tests. If 
 
 Additionally, the `-n` argument can be used if the user only wants the noise plots created for the 3- and/or 10-Point Gain, and not the gain or VT50 plots.
 
-Finally, the `-hg` argument produces two histograms per stream, depicting the number of defects throughout all of thermal cycling per chip (colour-coded by associated test type), and the number of defects by defect type, respectively.
+Finally, the `-hg` argument produces two histograms per stream, depicting the number of defects throughout all of thermal cycling per chip (colour-coded by associated test type), and the number of defects by defect type, respectively. Additionally, it produces two more histograms per hybrid, which show the number of defects by test (colour-coded by test type). The first of these is for warm tests, and the second for cold.
 
 # Notes
 - `make_TC_plots.py` is the main script. `IV.py`, `SD.py`, `PT.py`, `RC.py`, `NO.py`, `OCS.py`, `HVS.py`, `TC.py`, and `common_functions.py` contain function definitions for plotting their corresponding tests (except `common_functions.py`, which contains functions used in the plotting of multiple tests, or in `make_TC_plots.py` directly).
@@ -34,7 +34,6 @@ Finally, the `-hg` argument produces two histograms per stream, depicting the nu
 - Removing unnecessary duplication, and general code tidy-up.
 - Aesthetic matters, particularly for the TC results summary table.
 - A `--colour-blind` flag or similar that changes the colour scheme of certain plots to be more friendly to the red/green colour-blind. 
-- Some histograms that display number of defects by defect type, particularly for the 10-Point Gain.
 
 ## Contact
-For any questions, comments, or concerns, please email Madison Levagood at madisonlevagood@gmail.com, or reach out via Mattermost at @mlevagoo. You're welcome to contact me at any time convenient for you, however, I'm in the PST (GMT-8) timezone, and inquiries recieved during the night, or when I am in class, may recieve delayed responses. Apologies for the inconvenience. 
+For any questions, comments, or concerns, please email Madison Levagood at madisonlevagood@gmail.com, or reach out via Mattermost at @mlevagoo. You're welcome to contact me at any time convenient for you, however, I'm in the PDT (GMT-7) timezone, and inquiries recieved during the night, or when I am in class, may recieve delayed responses. Apologies for the inconvenience. 
