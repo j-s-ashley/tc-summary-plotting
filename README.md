@@ -20,14 +20,14 @@ All plots which display all the results for a test throughout TC (except the IV 
 
 Additionally, terminal printout is produced which gives an overview of enviromental data (maximum and minimum temperature and humidity, etc.) and the cycling itself (number of tests, duration, run numbers, etc.), as well a summary of results (what percent of warm and cold tests failed for each test type), and a list of all failed tests. 
 
-However, a user may only be interested in the results for some of the tests. If this is the case, they can use the `-t` argument, with the test acronyms they are interested in as a space-seperated list. Options are: IV, SD, PT, 3PG, 10PG, NO, OCS, HVS, and TC. TC produces the results summary and enviromental summary plots, as well as the aforementioned terminal printout. Not specifying this argument will cause all plots to be produced.
+However, a user may only be interested in the results for some of the tests. If this is the case, they can use the `-t` argument, with the test acronyms they are interested in as a space-seperated list. Options are: IV, SD, PT, 3PG, 10PG, NO, OCS, HVS, and TC. Not specifying this argument will cause all plots to be produced.
 
 Additionally, the `-n` argument can be used if the user only wants the noise plots created for the 3- and/or 10-Point Gain, and not the gain or VT50 plots.
 
 Finally, the `-hg` argument produces two histograms per stream, depicting the number of defects throughout all of thermal cycling per chip (colour-coded by associated test type), and the number of defects by defect type, respectively. Additionally, it produces two more histograms per hybrid, which show the number of defects by test (colour-coded by test type). The first of these is for warm tests, and the second for cold.
 
 # Notes
-- `make_TC_plots.py` is the main script. `IV.py`, `SD.py`, `PT.py`, `RC.py`, `NO.py`, `OCS.py`, `HVS.py`, `TC.py`, and `common_functions.py` contain function definitions for plotting their corresponding tests (except `common_functions.py`, which contains functions used in the plotting of multiple tests, or in `make_TC_plots.py` directly).
+- `make_TC_plots.py` is the main script. `IV.py`, `PT.py`, `SD.py`, `RC.py`, `NO.py`, `OCS.py`, and `HVS.py` contain function definitions for plotting their respective tests. `defect_plotting.py` contains the histogram plotting functions, `TC.py` contains the environmental and results summary plotting functions, and `common_functions.py` contains functions which are used across multiple tests.
 -  The TC results summary table will flag a test as failed if it failed for any hybrid on the module.
 
 ## Future Work
