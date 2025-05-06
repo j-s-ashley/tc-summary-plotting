@@ -1,7 +1,7 @@
 # Thermal Cycling Plotting
 Running `python3 make_TC_plots.py -d [DIRECTORY_PATH]` will produce a series of plots displaying the results of module thermal cycling, provided the following:
 - The directory contains all the merged files from TC for a single module, including the enviromental summary file (refered to in the code as a ColdJigRun JSON), and the HVSTABILITY JSON.
-- These merged files were produced by Cole Helling's merging script, found in the ch_SimplerMerging branch of ITSDAQ, in `contrib/itsdaq-merger`.
+- These merged files were produced by Cole Helling's merging script, found in the master branch of ITSDAQ, in `contrib/itsdaq-merger`.
 
 Plots produced include:
 - All IV results throughout TC, and all breakdown voltages flagged by ITSDAQ.
@@ -20,7 +20,7 @@ All plots which display all the results for a test throughout TC (except the IV 
 
 Additionally, terminal printout is produced which gives an overview of enviromental data (maximum and minimum temperature and humidity, etc.) and the cycling itself (number of tests, duration, run numbers, etc.), as well a summary of results (what percent of warm and cold tests failed for each test type), and a list of all failed tests. 
 
-However, a user may only be interested in the results for some of the tests. If this is the case, they can use the `-t` argument, with the test acronyms they are interested in as a space-seperated list. Options are: IV, SD, PT, 3PG, 10PG, NO, OCS, HVS, and TC. Not specifying this argument will cause all plots to be produced.
+However, a user may only be interested in the results for some of the tests. If this is the case, they can use the `-t` argument, with the test acronyms they are interested in as a space-seperated list. Options are: IV, SD, PT, 3PG, 10PG, NO, OCS, and HVS. Not specifying this argument will cause all plots to be produced.
 
 Additionally, the `-n` argument can be used if the user only wants the noise plots created for the 3- and/or 10-Point Gain, and not the gain or VT50 plots.
 

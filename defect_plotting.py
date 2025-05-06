@@ -4,11 +4,7 @@ import matplotlib
 import json
 from common_functions import *
 import TC
-import PT
 import SD
-import RC
-import NO
-import OCS
 
 def make_plots(files, TC_data):
     '''
@@ -41,7 +37,7 @@ def make_plots(files, TC_data):
     SD_defects    = get_defects(SD_data) #get all the defects for each test type
     PT_defects    = get_defects(PT_data)
     TPG_defects   = get_defects(TPG_data)
-    RC_defects  = get_defects(RC_data)
+    RC_defects    = get_defects(RC_data)
     NO_defects    = get_defects(NO_data)
     OCS_defects   = get_defects(OCS_data)
 
@@ -93,8 +89,8 @@ def defects_by_chip(PT_defects, SD_defects, TPG_defects, RC_defects, NO_defects,
     NO_defects_by_chip   = get_defect_chips(NO_defects, stream)
     OCS_defects_by_chip  = get_defect_chips(OCS_defects, stream)
 
-    hist_range = (0, len(chips))
-    bins = len(chips)
+    hist_range = (0, len(chips)) #set the range for the histogram
+    bins = len(chips) #one bin per chip
     plt.hist([PT_defects_by_chip, SD_defects_by_chip, TPG_defects_by_chip, RC_defects_by_chip, NO_defects_by_chip, OCS_defects_by_chip], histtype='bar', range=hist_range, bins=bins, color=['red', 'orange', 'yellow', 'green', 'blue', 'purple'], stacked="true", label=['Pedestal Trim', 'Strobe Delay', '3-Point Gain', '10-Point Gain', 'Noise Occupancy', 'Open Channel Search'])
     plt.title(f"{component} Defects by Chip, {stream} Stream")
     plt.xlabel("Chip")
@@ -146,60 +142,77 @@ def defects_by_type(PT_defects, SD_defects, TPG_defects, RC_defects, NO_defects,
 
 def defects_by_test(TC_data, PT_defects, SD_defects, TPG_defects, RC_defects, NO_defects, component):
     '''
+    Makes a bar plot for the number of defects per test. One subplot covers warm
+    tests, and the other cold tests. The bars are seperated by test type.
+
+    Arguments:
+    TC_data     - the contents of a pre-opened ColdJigRun JSON file.
+    PT_defects  - Type = list of dict. A list of all defects that occured during the
+                 Pedestal Trim.
+    SD_defects  - As above, for the Strobe Delay.
+    TPG_defects - As above, for the Three-Point Gain.
+    RC_defects  - As above, for the Ten-Point Gain.
+    NO_defects  - As above, for the Noise Occupancy.
+    OCS_defects - As above, for the Open Channel Search.
+    component   - Type = string. The hybrid serial number.
     '''
 
-    test_sections = TC_data["properties"]["ColdJig_History"]
+    test_sections = TC_data["properties"]["ColdJig_History"] #ie 4_TC_COLD_TEST_0
+    ## Filter out sections related to warm-up or cool-down, IVs, and OCS
     valid_sections = [section for section in test_sections if TC.test_is_valid(section)and "IV" not in section and "HV" not in section and "OPEN" not in section]
-    warm_sections, cold_sections = TC.sort_sect_temp(test_sections)
+    warm_sections, cold_sections = TC.sort_sect_temp(test_sections) #sort 'em by temp
 
+    ## Get defective tests for each test type
     PT_defect_tests = [defect["properties"]["runNumber"] for defect in PT_defects]
     SD_defect_tests = [defect["properties"]["runNumber"] for defect in SD_defects]
     TPG_defect_tests = [defect["properties"]["runNumber"] for defect in TPG_defects]
     RC_defect_tests = [defect["properties"]["runNumber"] for defect in RC_defects]
     NO_defect_tests = [defect["properties"]["runNumber"] for defect in NO_defects]
 
-    warm_bar_heights = []
+    warm_bar_heights = [] #initialize
     cold_bar_heights = []
     warm_tests = []
     cold_tests = []
-    valid_warm_sections = []
-    valid_cold_sections = []
 
     for section in valid_sections:
         try:
-            tests = TC_data["properties"]["ColdJig_History"][section]["itsdaq_test_info"]["all_tests"]
-        except:
-            tests = []
+            tests = TC_data["properties"]["ColdJig_History"][section]["itsdaq_test_info"]["all_tests"] #get the tests taken in that section
+        except: #if there aren't any tests in that section
+            tests = [] #leave it blank
             print(f"{YELLOW}Tests for {section} could not be found! Discarding.{RESET}")
-        PT_occurances = 0
-        SD_occurances = 0
+        PT_occurances  = 0 #initialize number of times a PT test is in a defect
+        SD_occurances  = 0
         TPG_occurances = 0
-        RC_occurances = 0
-        NO_occurances = 0
-        for test in tests:
-            test = ''.join(i for i in test if i.isdigit() or i == '-')
+        RC_occurances  = 0
+        NO_occurances  = 0
+        for test in tests: #for each of the tests taken in a testing section
+            test = ''.join(i for i in test if i.isdigit() or i == '-') #reformat
+    ## Add one to PT_occurances for every time the test occurs in the list of PT
+    ## defect tests. In other words, add the number of defects in that test.
             PT_occurances += PT_defect_tests.count(test)
             SD_occurances += SD_defect_tests.count(test)
             TPG_occurances += TPG_defect_tests.count(test)
             RC_occurances += RC_defect_tests.count(test)
             NO_occurances += NO_defect_tests.count(test)
-        if section in warm_sections:
+
+        if section in warm_sections: #if this happened warm, use it for the warm plot
            warm_bar_heights.append([PT_occurances, SD_occurances, TPG_occurances, RC_occurances, NO_occurances])
            warm_tests.append(tests)
-           valid_warm_sections.append(section)
 
-        elif section in cold_sections:
+        elif section in cold_sections: #if it happened cold, use it for the cold plot
             cold_bar_heights.append([PT_occurances, SD_occurances, TPG_occurances, RC_occurances, NO_occurances])
             cold_tests.append(tests)
-            valid_cold_sections.append(section)
 
-        plt.subplot(211)
-        warm_labels = []
-        for n,test in enumerate(make_one_list(warm_tests)):
-            if n % 5 == 0:
-                warm_labels.append(int(n/5))
-            else:
-                warm_labels.append('')
+    plt.subplot(211)
+    warm_labels = [] #initialize
+    for n,test in enumerate(make_one_list(warm_tests)): #define x labels for warm plot
+    ## Every five tests, have a tick label incrementing by one. Five "tests"
+    ## corresponds to one Full Test (PT, SD, 3PG, 10PG, NO).
+        if n % 5 == 0:
+            warm_labels.append(int(n/5))
+        else:
+            warm_labels.append('')
+
     plt.bar(make_one_list(warm_tests), make_one_list(warm_bar_heights), align='edge', color=['red','orange','yellow','green','blue'], label=["Pedestal Trim","Strobe Delay","3-Point Gain","10-Point Gain","Noise Occupancy"] * int(len(make_one_list(warm_tests))/5))
     plt.xticks(ticks=make_one_list(warm_tests),labels=warm_labels)
     plt.title(f"{component} Warm Defects Throughout TC")
@@ -209,13 +222,12 @@ def defects_by_test(TC_data, PT_defects, SD_defects, TPG_defects, RC_defects, NO
     plt.legend(handles[:5], labels[:5], ncols=5, bbox_to_anchor=(0.795, -0.17))
 
     plt.subplot(212)
-    cold_labels = []
-    for n, test in enumerate(make_one_list(cold_tests)):
+    cold_labels = [] #initialize
+    for n,test in enumerate(make_one_list(cold_tests)): #define x labels for cold plot
         if n % 5 == 0:
             cold_labels.append(int(n/5))
         else:
             cold_labels.append('')
-
     plt.bar(make_one_list(cold_tests), make_one_list(cold_bar_heights), align='edge', color=['red','orange','yellow','green','blue'])
     plt.xticks(ticks=make_one_list(cold_tests), labels=cold_labels)
     plt.title(f"{component} Cold Defects Throughout TC")
@@ -234,8 +246,9 @@ def get_defect_chips(defects, stream):
     Returns:
     defects_by_chip - Type = list of int. The chips corresponding to each defect.
     '''
-    defects_by_chip = []
+    defects_by_chip = [] #initialize
     for defect in defects:
+    ## If defect belongs to stream of interest, append the chip to returned list.
         if defect["properties"]["chip_bank"] == stream.lower():
             defects_by_chip.append(defect["properties"]["chip_in_histo"])
 
