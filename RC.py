@@ -17,11 +17,11 @@ def make_plots(RC_data, TC_data, noise_only):
     Returns:
     plots - Type = list of matplotlib figures. The plots made.
     '''
-
+    matplotlib.rcParams['font.size'] = 5
     plots = [] #initialize
 
 #Make a figure for noise plots
-    noise_plot = plt.figure(figsize=[15,7])
+    noise_plot = plt.figure(figsize=[8,4], dpi=50)
 
 #Make a plot of all under stream noise during TC
     plt.subplot(221)
@@ -43,7 +43,7 @@ def make_plots(RC_data, TC_data, noise_only):
     plots.append(noise_plot)
     if not noise_only:
     #Make a figure for gain plots
-        gain_plot = plt.figure(figsize=[15,7])
+        gain_plot = plt.figure(figsize=[8,4], dpi=50)
 
     #Make a plot of all under stream gain during TC
         plt.subplot(221)
@@ -64,7 +64,7 @@ def make_plots(RC_data, TC_data, noise_only):
         plt.tight_layout()
         plots.append(gain_plot)
     #Make a figure for VT50 plots
-        vt50_plot = plt.figure(figsize=[15,7])
+        vt50_plot = plt.figure(figsize=[8,4], dpi=50)
 
     #Make a plot of all under stream VT50s during TC
         plt.subplot(221)
@@ -137,17 +137,17 @@ def all_RC_plots(RC_data, TC_data, stream, field):
 
         if scan in warm_scans:
             w = w + 1 #increment warm scan counter
-            plt.scatter(good_channels, good_data, s=0.7, color=(red_warm, green_warm[w], blue_warm), label=f"Warm Test {w}") #plot non-defective warm data
+            plt.scatter(good_channels, good_data, s=0.05, color=(red_warm, green_warm[w], blue_warm), label=f"Warm Test {w}") #plot non-defective warm data
             if w == 0:
                 label = "Defect Channel" #have exactly one entry in legend for defects
             else:
                 label = None
-            plt.scatter(bad_channels, bad_data, s=20, color=(red_warm, green_warm[w], blue_warm), marker="^", label=label) #plot defective warm data
+            plt.scatter(bad_channels, bad_data, s=5, color=(red_warm, green_warm[w], blue_warm), marker="^", label=label) #plot defective warm data
 
         elif scan in cold_scans:
             c = c + 1 #increment cold scan counter
-            plt.scatter(good_channels, good_data, s=0.7, color=(red_cold, green_cold[c], blue_cold), label=f"Cold Test {c}") #plot non-defective cold data
-            plt.scatter(bad_channels, bad_data, s=20, color=(red_cold, green_cold[c], blue_cold), marker="^") #plot defective cold data
+            plt.scatter(good_channels, good_data, s=0.05, color=(red_cold, green_cold[c], blue_cold), label=f"Cold Test {c}") #plot non-defective cold data
+            plt.scatter(bad_channels, bad_data, s=5, color=(red_cold, green_cold[c], blue_cold), marker="^") #plot defective cold data
 
         else:
             print(f"{YELLOW}Scan {scan} could not be labelled as warm or cold!{RESET}")
@@ -157,11 +157,11 @@ def all_RC_plots(RC_data, TC_data, stream, field):
     plt.xlim(0,len(channels))
     plt.title(f"{component} {title}, {stream} Stream, {test_type}")
     if stream == 'Away':
-        legend = plt.legend(ncol=2, markerscale=5, fontsize=10, bbox_to_anchor=(-0.17, 1))
+        legend = plt.legend(ncol=2, markerscale=10, fontsize=5, bbox_to_anchor=(-0.17, 1))
         if field == "innse":
-            legend.legend_handles[3]._sizes = [150]
+            legend.legend_handles[3]._sizes = [50]
         else:
-            legend.legend_handles[1]._sizes = [150]
+            legend.legend_handles[1]._sizes = [50]
         legend
     plt.grid(axis='x')
     plt.gca().xaxis.set_major_locator(MultipleLocator(128))
@@ -230,8 +230,8 @@ def average_RC_plots(RC_data, TC_data, stream, field):
     warm_stds             = [np.std(channel) for channel in warm_data_by_channel]
     cold_stds             = [np.std(channel) for channel in cold_data_by_channel]
 
-    plt.errorbar(channels, warm_means, yerr=warm_stds, ms=1.5, elinewidth=0.1, color='r', fmt='o', label=f"Mean Warm {title}") #plot warm data
-    plt.errorbar(channels, cold_means, yerr=cold_stds, ms=1.5, elinewidth=0.1, color='b', fmt='o', label=f"Mean Cold {title}") #plot cold data
+    plt.errorbar(channels, warm_means, yerr=warm_stds, ms=0.7, elinewidth=0.3, color='r', fmt='o', label=f"Mean Warm {title}") #plot warm data
+    plt.errorbar(channels, cold_means, yerr=cold_stds, ms=0.7, elinewidth=0.3, color='b', fmt='o', label=f"Mean Cold {title}") #plot cold data
     plt.xlabel("Channel Number")
     plt.ylabel(f"{title}")
     plt.title(f"{component} Mean {title}, {stream} Stream")

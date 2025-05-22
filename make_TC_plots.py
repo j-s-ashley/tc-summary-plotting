@@ -36,18 +36,16 @@ histos       = args.histograms
 files = fetch_files(TC_directory)
 
 #Define file variables
-try:
-    IV_file    = f'{TC_directory}/{files["IV"]}'
-    PT_files   = files["PT"]
-    SD_files   = files["SD"]
-    TPG_files  = files["TPG"]
-    RC_files   = files["RC"]
-    NO_files   = files["NO"]
-    OCS_files  = files["OCS"]
-    HVS_file   = f'{TC_directory}/{files["HVS"]}'
-    TC_file    = f'{TC_directory}/{files["TC"]}'
-except:
-    pass
+
+IV_file    = f'{TC_directory}/{files["IV"]}'
+PT_files   = files["PT"]
+SD_files   = files["SD"]
+TPG_files  = files["TPG"]
+RC_files   = files["RC"]
+NO_files   = files["NO"]
+OCS_files  = files["OCS"]
+HVS_file   = f'{TC_directory}/{files["HVS"]}'
+TC_file    = f'{TC_directory}/{files["TC"]}'
 
 IV_plots    = [] #initialize
 PT_plots    = []

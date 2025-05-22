@@ -17,6 +17,7 @@ def make_plots(files, TC_data):
     defects_plot - Type = matplotlib plot. The finished histograms/bar plots. 
     '''
 
+    matplotlib.rcParams['font.size'] = 6
     for file in files:
         with open(file, 'r') as f: #open and read the file
             data = json.load(f)
@@ -41,7 +42,7 @@ def make_plots(files, TC_data):
     NO_defects    = get_defects(NO_data)
     OCS_defects   = get_defects(OCS_data)
 
-    defects_plot = plt.figure(figsize=[15,7]) #make the figure
+    defects_plot = plt.figure(figsize=[8,4], dpi=50) #make the figure
     chips        = SD.get_chips(SD_data) #get the chips (using the SD)
     component    = get_component(PT_data) #hybrid serial number
 
@@ -59,7 +60,7 @@ def make_plots(files, TC_data):
 
     plt.tight_layout()
 
-    defect_progression_plot = plt.figure(figsize=[15,7])
+    defect_progression_plot = plt.figure(figsize=[8,4], dpi=50)
     defects_by_test(TC_data, PT_defects, SD_defects, TPG_defects, RC_defects, NO_defects, component)
 
     return defects_plot, defect_progression_plot
@@ -97,7 +98,7 @@ def defects_by_chip(PT_defects, SD_defects, TPG_defects, RC_defects, NO_defects,
     plt.ylabel("Number of Defects")
     plt.xlim(0, len(chips))
     if stream == 'Away':
-        plt.legend(bbox_to_anchor=(-0.1,1))
+        plt.legend(bbox_to_anchor=(-0.15,1))
 
 def defects_by_type(PT_defects, SD_defects, TPG_defects, RC_defects, NO_defects, OCS_defects, stream, component):
     '''
@@ -177,6 +178,7 @@ def defects_by_test(TC_data, PT_defects, SD_defects, TPG_defects, RC_defects, NO
     for section in valid_sections:
         try:
             tests = TC_data["properties"]["ColdJig_History"][section]["itsdaq_test_info"]["all_tests"] #get the tests taken in that section
+
         except: #if there aren't any tests in that section
             tests = [] #leave it blank
             print(f"{YELLOW}Tests for {section} could not be found! Discarding.{RESET}")
@@ -186,6 +188,7 @@ def defects_by_test(TC_data, PT_defects, SD_defects, TPG_defects, RC_defects, NO
         RC_occurances  = 0
         NO_occurances  = 0
         for test in tests: #for each of the tests taken in a testing section
+
             test = ''.join(i for i in test if i.isdigit() or i == '-') #reformat
     ## Add one to PT_occurances for every time the test occurs in the list of PT
     ## defect tests. In other words, add the number of defects in that test.
@@ -197,11 +200,11 @@ def defects_by_test(TC_data, PT_defects, SD_defects, TPG_defects, RC_defects, NO
 
         if section in warm_sections: #if this happened warm, use it for the warm plot
            warm_bar_heights.append([PT_occurances, SD_occurances, TPG_occurances, RC_occurances, NO_occurances])
-           warm_tests.append(tests)
+           warm_tests.append([test for test in tests if "IV" not in test])
 
         elif section in cold_sections: #if it happened cold, use it for the cold plot
             cold_bar_heights.append([PT_occurances, SD_occurances, TPG_occurances, RC_occurances, NO_occurances])
-            cold_tests.append(tests)
+            cold_tests.append([test for test in tests if "IV" not in test])
 
     plt.subplot(211)
     warm_labels = [] #initialize
@@ -219,7 +222,7 @@ def defects_by_test(TC_data, PT_defects, SD_defects, TPG_defects, RC_defects, NO
     plt.xlabel("Warm Test Number")
     plt.ylabel("Number of Defects")
     handles,labels = plt.gca().get_legend_handles_labels()
-    plt.legend(handles[:5], labels[:5], ncols=5, bbox_to_anchor=(0.795, -0.17))
+    plt.legend(handles[:5], labels[:5], ncols=5, bbox_to_anchor=(0.795, -0.19))
 
     plt.subplot(212)
     cold_labels = [] #initialize

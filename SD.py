@@ -16,8 +16,8 @@ def make_plots(SD_data, TC_data):
     Returns:
     plot - Type = matplotlib figure. The plot made.
     '''
-
-    plot = plt.figure(figsize=[15,7])
+    matplotlib.rcParams['font.size'] = 5
+    plot = plt.figure(figsize=[8,4], dpi=50)
 
 #Make a plot of all SD results throughout TC for under stream
     plt.subplot(221)
@@ -72,19 +72,19 @@ def all_strobes_plot(SD_data, TC_data, stream):
 
         if scan in warm_scans:
             w = w + 1 #increment warm scan counter
-            plt.scatter(good_chips, good_strobes, color=(red_warm, green_warm[w], blue_warm), label=f"Warm SD {w}", s=20) #plot
+            plt.scatter(good_chips, good_strobes, color=(red_warm, green_warm[w], blue_warm), label=f"Warm SD {w}", s=6) #plot
             if w == 0:
 #Ensure there is exactly one item in the legend displaying a bad strobe marker.
                 label = "Bad Strobe"
             else:
                 label = None
 
-            plt.scatter(bad_chips, bad_strobes, color=(red_warm, green_warm[w], blue_warm), marker='^', label=label, s=80)
+            plt.scatter(bad_chips, bad_strobes, color=(red_warm, green_warm[w], blue_warm), marker='^', label=label, s=20)
 
         elif scan in cold_scans:
             c = c + 1 #increment cold scan counter
-            plt.scatter(good_chips, good_strobes, color=(red_cold, green_cold[c], blue_cold), label=f"Cold SD {c}", s=20) #plot
-            plt.scatter(bad_chips, bad_strobes, color=(red_cold, green_cold[c], blue_cold), marker='^', s=80)
+            plt.scatter(good_chips, good_strobes, color=(red_cold, green_cold[c], blue_cold), label=f"Cold SD {c}", s=6) #plot
+            plt.scatter(bad_chips, bad_strobes, color=(red_cold, green_cold[c], blue_cold), marker='^', s=20)
 
         else:
             print(f"{YELLOW}Scan {scan} can not be labelled as warm or cold!{RESET}")
@@ -95,7 +95,7 @@ def all_strobes_plot(SD_data, TC_data, stream):
     plt.xlim(-0.5, len(chips) - 0.5)
     plt.grid(axis='x')
     if stream == 'Away':
-        plt.legend(ncol=2, fontsize=10, bbox_to_anchor=(-0.1, 1))
+        plt.legend(ncol=2, fontsize=5, bbox_to_anchor=(-0.1, 1))
 
 def average_strobes_plot(SD_data, TC_data, stream):
     '''
@@ -125,8 +125,8 @@ def average_strobes_plot(SD_data, TC_data, stream):
     cold_means = [np.mean(chip) for chip in cold_strobes_by_chip]
     cold_stds  = [np.std(chip) for chip in cold_strobes_by_chip]
 
-    plt.errorbar(chips, warm_means, yerr=warm_stds, color='r', fmt='o', label="Mean Warm Strobe Delay", ms=6) #plot warm mean SD values
-    plt.errorbar(chips, cold_means, yerr=cold_stds, color='b', fmt='o', label="Mean Cold Strobe Delay", ms=6) #plot cold mean SD values
+    plt.errorbar(chips, warm_means, yerr=warm_stds, color='r', fmt='o', label="Mean Warm Strobe Delay", ms=3) #plot warm mean SD values
+    plt.errorbar(chips, cold_means, yerr=cold_stds, color='b', fmt='o', label="Mean Cold Strobe Delay", ms=3) #plot cold mean SD values
 
     plt.xlabel("Chip Number")
     plt.ylabel("Strobe Delay")

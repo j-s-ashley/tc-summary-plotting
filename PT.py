@@ -18,7 +18,8 @@ def make_plots(PT_data, TC_data):
     plot - Type = matplotlib figure. The plot made.
     '''
 
-    plot = plt.figure(figsize=[15,7])
+    plot = plt.figure(figsize=[8,4], dpi=50)
+    matplotlib.rcParams['font.size'] = 5
     plt.subplot(221)
     all_scans_plot(PT_data, TC_data, "Under") #make plot of all PTs for away stream
 
@@ -61,20 +62,20 @@ def all_scans_plot(PT_data, TC_data, stream):
 
         if scan in warm_scans:
             w = w + 1 #increment number of warm scans
-            plt.scatter(good_channels, good_trims, color=(red_warm, green_warm[w], blue_warm), label=f"Warm PT {w}", s=2) #plot good warm channels
+            plt.scatter(good_channels, good_trims, color=(red_warm, green_warm[w], blue_warm), label=f"Warm PT {w}", s=0.5) #plot good warm channels
 
             if w == 0:
                 name = "Bad Trim" #put exactly one 'Bad Trim' indicator in legend
             else:
                 name = None
 
-            plt.scatter(bad_channels, bad_trims, color=(red_warm, green_warm[w], blue_warm), label=name, s=20, marker='^') #plot defective warm channels
+            plt.scatter(bad_channels, bad_trims, color=(red_warm, green_warm[w], blue_warm), label=name, s=5, marker='^') #plot defective warm channels
 
 
         elif scan in cold_scans:
             c = c + 1 #increment number of cold scans
-            plt.scatter(good_channels, good_trims, color=(red_cold, green_cold[c], blue_cold), label=f"Cold PT {c}", s=2) #plot good cold channels
-            plt.scatter(bad_channels, bad_trims, color=(red_cold, green_cold[c], blue_cold), s=20, marker="^") #plot defective cold channels
+            plt.scatter(good_channels, good_trims, color=(red_cold, green_cold[c], blue_cold), label=f"Cold PT {c}", s=0.5) #plot good cold channels
+            plt.scatter(bad_channels, bad_trims, color=(red_cold, green_cold[c], blue_cold), s=5, marker="^") #plot defective cold channels
 
         else:
         #If the scan isn't being flagged by temperature correctly, inform user and
@@ -89,7 +90,7 @@ def all_scans_plot(PT_data, TC_data, stream):
     plt.xlim(0, len(channels))
     plt.grid(axis='x')
     if stream == 'Away':
-        plt.legend(ncol=2, markerscale=3, fontsize=10, framealpha=0.6, bbox_to_anchor=(-0.1, 1))
+        plt.legend(ncol=2, markerscale=3, fontsize=5, framealpha=0.6, bbox_to_anchor=(-0.12, 1))
     plt.gca().xaxis.set_major_locator(MultipleLocator(128))
 
 def average_trim_plot(PT_data, TC_data, stream):
@@ -122,8 +123,8 @@ def average_trim_plot(PT_data, TC_data, stream):
     cold_stds  = [np.std(channel) for channel in cold_trims_by_channel]
 
 #Plot
-    plt.errorbar(channels, warm_means, yerr=warm_stds, color='r', ms=2, elinewidth=0.5, fmt="o", label="Mean Warm Trims")
-    plt.errorbar(channels, cold_means, yerr=cold_stds, color='b', ms=2, elinewidth=0.5, fmt="o", label="Mean Cold Trims")
+    plt.errorbar(channels, warm_means, yerr=warm_stds, color='r', ms=0.7, elinewidth=0.3, fmt="o", label="Mean Warm Trims")
+    plt.errorbar(channels, cold_means, yerr=cold_stds, color='b', ms=0.7, elinewidth=0.3, fmt="o", label="Mean Cold Trims")
 
     plt.xlabel("Channel Number")
     plt.ylabel("Trim Value")

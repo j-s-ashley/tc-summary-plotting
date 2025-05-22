@@ -19,15 +19,15 @@ def make_plots(TC_data, failed_tests):
     plots - Type = list of matplotlib figures. The plots made.
     '''
 
-    matplotlib.rcParams['font.size'] = 15 #set plot fontsize globally
+    matplotlib.rcParams['font.size'] = 7 #set plot fontsize globally
     failed_tests = make_one_list(failed_tests) #reformat
-    env_plot = plt.figure(figsize=[14,6])
+    env_plot = plt.figure(figsize=[7,5], dpi=50)
 
 #Make a plot of the environmental data during TC
     environmental_plot(TC_data)
 
 #Make a table of all TC tests, indicating which passed, and which failed
-    results_plot = plt.figure(figsize=[14,12])
+    results_plot = plt.figure(figsize=[8,6], dpi=10)
     results_table(TC_data, failed_tests)
 
     environmental_summary(TC_data) #terminal output about environmental data
@@ -143,7 +143,7 @@ def results_table(TC_data, failed_tests):
 #get rid of axis ticks and labels
     plt.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
     results_table.auto_set_font_size(False) #override automatic fontsize setting
-    results_table.set_fontsize(12) #set fontsize for the table
+    results_table.set_fontsize(6) #set fontsize for the table
     results_table #create the table
 
 def environmental_summary(TC_data):

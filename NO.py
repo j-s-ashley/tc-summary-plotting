@@ -15,8 +15,8 @@ def make_plots(NO_data, TC_data):
     Returns:
     plot - Type = matplotlib figure. The plot made.
     '''
-
-    plot = plt.figure(figsize=[15,7])
+    matplotlib.rcParams['font.size'] = 5
+    plot = plt.figure(figsize=[8,4], dpi=50)
 
 #Make plot of all NO data throughout TC for the under stream
     plt.subplot(221)
@@ -67,19 +67,19 @@ def all_occupancy_plots(NO_data, TC_data, stream):
 
         if scan in warm_scans:
             w = w + 1 #increment warm scan counter
-            plt.scatter(good_chips, good_data, color=(red_warm, green_warm[w], blue_warm), label=f"Warm NO {w}", s=20) #plot good warm data
+            plt.scatter(good_chips, good_data, color=(red_warm, green_warm[w], blue_warm), label=f"Warm NO {w}", s=6) #plot good warm data
 
             if w == 0: #have exactly one defect label in legend
                 label = "Defect Chip"
             else:
                 label = None
 
-            plt.scatter(bad_chips, bad_data, color=(red_warm, green_warm[w], blue_warm), s=60, marker="^", label=label) #plot bad warm data
+            plt.scatter(bad_chips, bad_data, color=(red_warm, green_warm[w], blue_warm), s=20, marker="^", label=label) #plot bad warm data
 
         elif scan in cold_scans:
             c = c + 1 #increment cold scan counter
-            plt.scatter(good_chips, good_data, color=(red_cold, green_cold[c], blue_cold), label=f"Cold NO {c}", s=20) #plot good cold data
-            plt.scatter(bad_chips, bad_data, color=(red_cold, green_cold[c], blue_cold), s=60, marker="^") #plot bad cold data
+            plt.scatter(good_chips, good_data, color=(red_cold, green_cold[c], blue_cold), label=f"Cold NO {c}", s=6) #plot good cold data
+            plt.scatter(bad_chips, bad_data, color=(red_cold, green_cold[c], blue_cold), s=20, marker="^") #plot bad cold data
 
         else:
             print(f"{YELLOW}Scan {scan} could not be labelled warm or cold!{RESET}")
@@ -90,7 +90,7 @@ def all_occupancy_plots(NO_data, TC_data, stream):
     plt.title(f"{component} Occupancy Throughout TC, {stream} Stream")
     plt.grid(axis='x')
     if stream == 'Away':
-        plt.legend(ncol=2, fontsize=10, bbox_to_anchor=(-0.1,1))
+        plt.legend(ncol=2, fontsize=5, bbox_to_anchor=(-0.1,1))
 
 def average_occupancy_plots(NO_data, TC_data, stream):
     '''
@@ -119,8 +119,8 @@ def average_occupancy_plots(NO_data, TC_data, stream):
     warm_stds = [np.std(chip) for chip in warm_data_by_chip]
     cold_stds = [np.std(chip) for chip in cold_data_by_chip]
 
-    plt.errorbar(chips, warm_means, yerr=warm_stds, color='r', fmt='o', label="Mean Warm Occupancy", ms=5) #plot warm data
-    plt.errorbar(chips, cold_means, yerr=cold_stds, color='b', fmt='o', label="Mean Cold Occupancy", ms=5) #plot cold data
+    plt.errorbar(chips, warm_means, yerr=warm_stds, color='r', fmt='o', label="Mean Warm Occupancy", ms=3) #plot warm data
+    plt.errorbar(chips, cold_means, yerr=cold_stds, color='b', fmt='o', label="Mean Cold Occupancy", ms=3) #plot cold data
 
     plt.xlabel("Chip Number")
     plt.ylabel("Occupancy")

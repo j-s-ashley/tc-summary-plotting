@@ -19,7 +19,8 @@ def make_plots(OCS_data, TC_data):
     plot - Type = matplotlib figure. The plot made.
     '''
 
-    plot = plt.figure(figsize=[15,7])
+    matplotlib.rcParams['font.size'] = 5
+    plot = plt.figure(figsize=[8,4], dpi=50)
 
 #Make plot for all OCS data from TC for the under stream
     plt.subplot(221)
@@ -72,13 +73,13 @@ def all_OCS_plot(OCS_data, TC_data, stream):
 
         if scan in warm_scans:
             w = w + 1 #increment warm scan counter
-            plt.scatter(good_channels, good_data, s=5, color=(red_warm, green_warm[w], blue_warm), label=f"Warm OCS {w}") #plot good data
+            plt.scatter(good_channels, good_data, s=0.5, color=(red_warm, green_warm[w], blue_warm), label=f"Warm OCS {w}") #plot good data
             if w == 0: #have exactly one defect label in legend
                 label = "Defect Channel"
             else:
                 label = None
 
-            plt.scatter(bad_channels, bad_data, s=50, marker="^", color=(red_warm, green_warm[w], blue_warm), label=label) #plot bad data
+            plt.scatter(bad_channels, bad_data, s=5, marker="^", color=(red_warm, green_warm[w], blue_warm), label=label) #plot bad data
 
         else:
             print(f"{YELLOW}Scan {scan} could not be labelled warm!{RESET}")
@@ -145,7 +146,7 @@ def OCS_histo(OCS_data, TC_data, stream):
     hist_range = (0, int(len(channels)/128)) #range of histogram
     bins  = (int(len(channels)/128)) #bin by chip (128 channels per ABC)
     plt.hist([chips for chips in all_defect_chips], histtype='bar', range=hist_range, bins=bins, color=[(red_warm, green_warm[w], blue_warm) for w in range(len(scans))], stacked=False, label=[f"Warm OCS {n}" for n,s in enumerate(scans)]) #plot
-    plt.title(f"{component} Open Channels by Chip, {stream} Stream")
+    plt.title(f"{component} Open/Dead Channels by Chip, {stream} Stream")
     plt.xlabel("Chip")
     plt.xlim(0, int(len(channels)/128))
     plt.grid(axis='x')

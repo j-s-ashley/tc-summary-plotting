@@ -18,7 +18,8 @@ def make_plots(IV_data, TC_data):
     plot - Type = matplotlib figure. The plot made.
     '''
 
-    plot = plt.figure(figsize=[14, 6])
+    matplotlib.rcParams['font.size'] = 6
+    plot = plt.figure(figsize=[8, 4], dpi=50)
 
 #Make overview plot
     plt.subplot(121)
@@ -58,11 +59,11 @@ def make_overview_plot(IV_data, TC_data):
     for n, scan in enumerate(scans):
         if scan in warm_scans:
             w = w + 1
-            plt.plot(voltages[n], currents[n], color=(red_warm, green_warm[w], blue_warm), label=f"Warm IV {w}", marker='.', markersize=6) #plot warm scan
+            plt.plot(voltages[n], currents[n], color=(red_warm, green_warm[w], blue_warm), label=f"Warm IV {w}", marker='.', markersize=3, linewidth=0.9) #plot warm scan
 
         elif scan in cold_scans:
             c = c + 1
-            plt.plot(voltages[n], currents[n], color=(red_cold, green_cold[c], blue_cold), label=f"Cold IV {c}", marker='.', markersize=6) #plot cold scan
+            plt.plot(voltages[n], currents[n], color=(red_cold, green_cold[c], blue_cold), label=f"Cold IV {c}", marker='.', markersize=3, linewidth=0.9) #plot cold scan
 
         else:
             print(f"{YELLOW}Scan {scan} not flagged as warm or cold!{RESET}") #scan won't be plotted
@@ -70,7 +71,7 @@ def make_overview_plot(IV_data, TC_data):
     plt.xlabel("Voltage (V)")
     plt.ylabel("Current (nA)")
     plt.title(f"{component} IV Results Throughout TC")
-    plt.legend(ncol=2, fontsize=12, framealpha=0.6, bbox_to_anchor=(1,1))
+    plt.legend(ncol=2, fontsize=5, framealpha=0.6, bbox_to_anchor=(1,1))
 
 def make_breakdown_plot(IV_data, TC_data):
     '''
@@ -99,9 +100,9 @@ def make_breakdown_plot(IV_data, TC_data):
 
 #Plot
     plt.scatter(warm_tests, [VBDs[w] for w in warm_tests], color='r',
-                label="Warm Breakdown")
+                label="Warm Breakdown", s=7)
     plt.scatter(cold_tests, [VBDs[c] for c in cold_tests], color='b',
-                label="Cold Breakdown")
+                label="Cold Breakdown", s=7)
     plt.plot(range(len(scans)), [500 for scan in scans], color='g',
             linestyle='dashed', label="Pass Criteria")
     plt.plot(range(len(scans)), [350 for scan in scans], color='k',
