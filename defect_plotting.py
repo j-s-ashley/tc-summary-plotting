@@ -17,7 +17,7 @@ def make_plots(files, TC_data):
     defects_plot - Type = matplotlib plot. The finished histograms/bar plots. 
     '''
 
-    matplotlib.rcParams['font.size'] = 6
+    matplotlib.rcParams['font.size'] = 5
     for file in files:
         with open(file, 'r') as f: #open and read the file
             data = json.load(f)
