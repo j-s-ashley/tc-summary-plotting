@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.ticker import MultipleLocator
 from common_functions import *
+import pprint
 
 def make_plots(IV_data, TC_data):
     '''

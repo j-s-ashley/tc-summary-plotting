@@ -3,6 +3,7 @@ import numpy as np
 import os
 import json
 from matplotlib.backends.backend_pdf import PdfPages
+import pprint
 
 def get_component(data):
     '''
@@ -139,6 +140,7 @@ def fetch_files(directory):
 #one associated file. Otherwise, append to list of files of that test type, and add
 #that list to sorted_files.
     for valid_file in valid_files:
+
         if "MODULE_IV_AMAC_TC" in valid_file:
             sorted_files["IV"] = valid_file
         elif "PEDESTAL_TRIM_TC" in valid_file:
@@ -155,7 +157,7 @@ def fetch_files(directory):
             OCSs.append(valid_file)
         elif "HVSTABILITY" in valid_file:
             sorted_files["HVS"] = valid_file
-        elif "ColdJigRun" or "MODULE_TC" in valid_file:
+        elif "ColdJigRun" in valid_file or "MODULE_TC" in valid_file:
             sorted_files["TC"] = valid_file
 
         sorted_files["PT"] = PTs
@@ -210,8 +212,12 @@ def fetch_failed_tests(file):
     failed_tests - Type = list of string. A list of all failed tests in that file.
     '''
 
-    with open(file, 'r') as f: #open the file
-        data = json.load(f)
+    if type(file) is dict: #if the file is already opened
+        data = file
+
+    else:
+        with open(file, 'r') as f: #open the file
+            data = json.load(f)
 
     try:
         failed_tests = data["properties"]["itsdaq_test_info"]["failed_tests"]
@@ -277,22 +283,24 @@ def get_test_type(data):
     Returns:
     test_type - Type = string, "3PG" or "10PG", or none. The type of Response Curve.
     '''
-
     try:
-        if data["properties"]["fit_type_code"] == 4: #fit_type_code for 3PG
-            test_type = "3PG"
-        elif data["properties"]["fit_type_code"] == 3: #fit_type_code for 10PG
-            test_type = "10PG"
-
+        ft_code = data["properties"]["fit_type_code"] #see if there is a fit_type_code
     except:
-        if "trim_away" == list(data["results"].keys())[0]:
-            test_type = "PT"
-        elif "StrobeDelay_away" == list(data["results"].keys())[0]:
-            test_type = "SD"
-        elif "enc_est_away" == list(data["results"].keys())[0]:
-            test_type = "NO"
-        elif "noise_away" == list(data["results"].keys())[0]:
-            test_type = "OCS"
+        ft_code = None #if it doesn't exist, make it None
+
+    if ft_code == 4: #fit_type_code for 3PG
+        test_type = "3PG"
+    elif ft_code == 3: #fit_type_code for 10PG
+        test_type = "10PG"
+
+    elif "trim_away" in list(data["results"].keys()):
+        test_type = "PT"
+    elif "StrobeDelay_away" in list(data["results"].keys()):
+        test_type = "SD"
+    elif "enc_est_away" in list(data["results"].keys()):
+        test_type = "NO"
+    elif "noise_away" in list(data["results"].keys()):
+        test_type = "OCS"
 
     return test_type
 
@@ -375,12 +383,11 @@ def sort_files_by_hybrid(files, TC_directory):
     '''
 
     sorted_files = {} #initialize
+
     for file in files:
-        file_SN = file[0:16] #get the file SN from the file name...
-        if 'H4' in file_SN: #unless it's an R2
-            with open(f"{TC_directory}/{file}", 'r') as f:
-                data = json.load(f)
-                file_SN = get_component(data) #get the SN from inside the file
+
+        data = retrieve_data(file)
+        file_SN = get_component(data) #get the SN from inside the file
 
         if file_SN in sorted_files.keys(): #if SN is already in the dictionary
             sorted_files[file_SN].append(file) #just append the file to that key list
@@ -439,6 +446,26 @@ def get_index(item, items):
     return index
 
 
+def retrieve_data(data_file):
+    '''
+    Retrieve data from a data file, using a different method for real local files,
+    and "files" (data dictionaries) pulled from the ATLAS ITk Production Database.
+
+    Arguments:
+    data_file - type = string or dict. Either a path to a local JSON,
+                or a data dictionary from the database.
+
+    Returns:
+    data - type = dict. The data dictionary.
+    '''
+    if type(data_file) is dict: #if the data_file was pulled from DB
+        data = data_file #do nothing
+
+    else: #if it's a path to a local file
+        with open(data_file, 'r') as f: #open the JSON
+            data = json.load(f)
+
+    return data
 
 '''
 Sets global variables for colour terminal printout.

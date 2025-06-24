@@ -19,9 +19,10 @@ def make_plots(files, TC_data):
 
     matplotlib.rcParams['font.size'] = 5
     for file in files:
-        with open(file, 'r') as f: #open and read the file
-            data = json.load(f)
-            test_type = get_test_type(data)
+
+        data = retrieve_data(file)
+        test_type = get_test_type(data)
+
         if test_type == "PT": #sort by test type
             PT_data = data
         elif test_type == "SD":

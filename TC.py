@@ -158,14 +158,14 @@ def environmental_summary(TC_data):
     '''
 
     TC_summary         = TC_data["results"]["summary"] #Where this info is stored
-    max_temp           = TC_summary["max_temperature"] #max chuck temperature
-    min_temp           = TC_summary["min_temperature"] #min chuck temperature
-    max_hum            = TC_summary["max_humidity"] #max chuck humidity
-    min_hum            = TC_summary["min_humidity"] #min chuck humidity
+    max_temp           = float(TC_summary["max_temperature"]) #max chuck temperature
+    min_temp           = float(TC_summary["min_temperature"]) #min chuck temperature
+    max_hum            = float(TC_summary["max_humidity"]) #max chuck humidity
+    min_hum            = float(TC_summary["min_humidity"]) #min chuck humidity
     n_cold             = TC_summary["cold_tests"] #number of cold tests
     n_warm             = TC_summary["warm_tests"] #number of warm tests
     n_shunted          = TC_summary["cold_shunted_tests"] #number of cold shunted
-    duration           = TC_summary["duration_hours"] #TC duration
+    duration           = float(TC_summary["duration_hours"]) #TC duration
     cj_run_numbers     = TC_summary["coldjig_runNumbers"] #ColdJig run numbers
     itsdaq_run_numbers = TC_summary["itsdaq_runNumbers"] #ITSDAQ run numbers
 
