@@ -5,7 +5,6 @@ import json
 import argparse
 from PIL import Image
 #Import TC plotting scripts
-import IV
 import PT
 import SD
 import RC
@@ -24,7 +23,7 @@ parser.add_argument("-d", "--TC_directory",
 parser.add_argument("-db", "--database",
   help="Queries ATLAS ITk Production Database, instead of local files.", action='store_true')
 parser.add_argument("-t", "--tests",
-  help="Test types to be plotted (IV, PT, SD, 3PG, 10PG, NO, OCS). If not specified, all will be plotted.", nargs="+", default = ["IV", "PT", "SD", "3PG", "10PG", "NO", "OCS"])
+  help="Test types to be plotted (PT, SD, 3PG, 10PG, NO, OCS). If not specified, all will be plotted.", nargs="+", default = ["PT", "SD", "3PG", "10PG", "NO", "OCS"])
 parser.add_argument("-n", "--noise_only", help="When making the 3PG/10PG plots, only make plots for the noise, not the gain or VT50", action='store_true')
 parser.add_argument("-hg", "--histograms", help="Make histograms with module defect information", action='store_true')
 args = parser.parse_args()
@@ -42,7 +41,6 @@ if not query_db: #if using local files
 
     #Get files
     files = fetch_files(TC_directory)
-    IV_file    = f'{TC_directory}/{files["IV"]}'
     PT_files   = [f'{TC_directory}/{PT_file}' for PT_file in files["PT"]]
     SD_files   = [f'{TC_directory}/{SD_file}' for SD_file in files["SD"]]
     TPG_files  = [f'{TC_directory}/{TPG_file}' for TPG_file in files["TPG"]]
@@ -53,9 +51,8 @@ if not query_db: #if using local files
 
 if query_db: #if getting data from the database
 
-    IV_file, PT_files, SD_files, TPG_files, RC_files, NO_files, OCS_files, TC_file = db.get_files()
-    files = {'IV' : IV_file,
-             'PT': PT_files,
+    PT_files, SD_files, TPG_files, RC_files, NO_files, OCS_files, TC_file = db.get_files()
+    files = {'PT': PT_files,
              'SD': SD_files,
              '3PG': TPG_files,
              '10PG': RC_files,
@@ -63,7 +60,6 @@ if query_db: #if getting data from the database
              'OCS': OCS_files,
              'TC': TC_file} #files sorted by type
 
-IV_plots    = [] #initialize
 PT_plots    = []
 SD_plots    = []
 TPG_plots   = []
@@ -76,13 +72,6 @@ histo_plots = []
 #Define TC data
 
 TC_data = retrieve_data(TC_file)
-
-#Make IV plots
-if "IV" in test_types:
-    print("\nMaking IV plots...")
-    IV_data = retrieve_data(IV_file)
-    IV_plots.append(IV.make_plots(IV_data, TC_data))
-    print(f"\n{GREEN}IV plots complete!{RESET}")
 
 #Make PT plots
 if "PT" in test_types:
@@ -170,7 +159,7 @@ print(f"\n{GREEN}Thermal Cycling summary plots complete!{RESET}")
 
 #Make single PDF from all made plots
 print("\nMaking PDF...")
-all_plots0 = IV_plots + PT_plots + SD_plots + make_one_list(TPG_plots) + make_one_list(RC_plots) + NO_plots + OCS_plots + make_one_list(histo_plots) + make_one_list(TC_plots) #all plots made
+all_plots0 = PT_plots + SD_plots + make_one_list(TPG_plots) + make_one_list(RC_plots) + NO_plots + OCS_plots + make_one_list(histo_plots) + make_one_list(TC_plots) #all plots made
 all_plots  = (make_one_list(all_plots0)) #reformat
 component  = get_component(TC_data) #module serial number
 date       = TC_data["date"][:10] #date that TC was run
@@ -179,6 +168,3 @@ make_pdf(all_plots, component, date, run_number) #put the plots into a single PD
 
 plt.close('all')
 print(f"\n{GREEN}Plotting complete!{RESET}")
-
-
-
