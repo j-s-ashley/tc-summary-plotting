@@ -5,14 +5,13 @@ import matplotlib
 from matplotlib.ticker import MultipleLocator
 from common_functions import *
 
-def make_plots(RC_data, TC_data, noise_only):
+def make_plots(RC_data, noise_only):
     '''
     Organizes the making of plots, such as where each subplot goes on the figures.
     Used for both 3-Point Gain and 10-Point Gain scans.
 
     Arguments:
     RC_data - the contents of a pre-opened RESPONSE_CURVE JSON file.
-    TC_data - the contents of a pre-opened ColdJIgRun JSON file.
     noise_only - Boolean. If True, only make noise plots, not gain or VT50.
     Returns:
     plots - Type = list of matplotlib figures. The plots made.
@@ -23,21 +22,21 @@ def make_plots(RC_data, TC_data, noise_only):
 #Make a figure for noise plots
     noise_plot = plt.figure(figsize=[8,4], dpi=50)
 
-#Make a plot of all under stream noise during TC
+#Make a plot of all under stream noise during HBI
     plt.subplot(221)
-    all_RC_plots(RC_data, TC_data, "Under", "innse")
+    all_RC_plots(RC_data, "Under", "innse")
 
-#Make a plot of all away stream noise during TC
+#Make a plot of all away stream noise during HBI
     plt.subplot(222)
-    all_RC_plots(RC_data, TC_data, "Away", "innse")
+    all_RC_plots(RC_data, "Away", "innse")
 
 #Make a plot of the average under stream noise
     plt.subplot(223)
-    average_RC_plots(RC_data, TC_data, "Under", "innse")
+    average_RC_plots(RC_data, "Under", "innse")
 
 #Make a plot of the average away stream noise
     plt.subplot(224)
-    average_RC_plots(RC_data, TC_data, "Away", "innse")
+    average_RC_plots(RC_data, "Away", "innse")
 
     plt.tight_layout()
     plots.append(noise_plot)
@@ -45,42 +44,42 @@ def make_plots(RC_data, TC_data, noise_only):
     #Make a figure for gain plots
         gain_plot = plt.figure(figsize=[8,4], dpi=50)
 
-    #Make a plot of all under stream gain during TC
+    #Make a plot of all under stream gain during HBI
         plt.subplot(221)
-        all_RC_plots(RC_data, TC_data, "Under", "gain")
+        all_RC_plots(RC_data, "Under", "gain")
 
-    #Make a plot of all away stream gain during TC
+    #Make a plot of all away stream gain during HBI
         plt.subplot(222)
-        all_RC_plots(RC_data, TC_data, "Away", "gain")
+        all_RC_plots(RC_data, "Away", "gain")
 
     #Make a plot of the average under stream gain
         plt.subplot(223)
-        average_RC_plots(RC_data, TC_data, "Under", "gain")
+        average_RC_plots(RC_data, "Under", "gain")
 
     #Make a plot of the average away stream gain
         plt.subplot(224)
-        average_RC_plots(RC_data, TC_data, "Away", "gain")
+        average_RC_plots(RC_data, "Away", "gain")
 
         plt.tight_layout()
         plots.append(gain_plot)
     #Make a figure for VT50 plots
         vt50_plot = plt.figure(figsize=[8,4], dpi=50)
 
-    #Make a plot of all under stream VT50s during TC
+    #Make a plot of all under stream VT50s during HBI
         plt.subplot(221)
-        all_RC_plots(RC_data, TC_data, "Under", "vt50")
+        all_RC_plots(RC_data, "Under", "vt50")
 
-    #Make a plot of all away stream VT50s during TC
+    #Make a plot of all away stream VT50s during HBI
         plt.subplot(222)
-        all_RC_plots(RC_data, TC_data, "Away", "vt50")
+        all_RC_plots(RC_data, "Away", "vt50")
 
     #Make a plot of the average under stream VT50s
         plt.subplot(223)
-        average_RC_plots(RC_data, TC_data, "Under", "vt50")
+        average_RC_plots(RC_data, "Under", "vt50")
 
     #Make a plot of the average away stream VT50s
         plt.subplot(224)
-        average_RC_plots(RC_data, TC_data, "Away", "vt50")
+        average_RC_plots(RC_data, "Away", "vt50")
 
         plt.tight_layout()
         plots.append(vt50_plot)
@@ -89,14 +88,13 @@ def make_plots(RC_data, TC_data, noise_only):
 
     return plots
 
-def all_RC_plots(RC_data, TC_data, stream, field):
+def all_RC_plots(RC_data, stream, field):
     '''
     Makes a plot of all test results for a given stream and given field (noise, gain,
     or VT50), colour-coded by test temperature.
 
     Arguments:
     RC_data - the contents of a pre-opened RESPONSE_CURVE JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". Stream to be plotted.
     field   - Type = string, "innse", "gain", or "vt50". Field to be plotted.
     '''
@@ -106,7 +104,6 @@ def all_RC_plots(RC_data, TC_data, stream, field):
     channels                  = get_channels(RC_data)
     expected_noise, noise_max = get_noise_info(component, stream) #based on hybrid
     scans                     = get_scans(RC_data) #list of all RC scans
-    warm_scans, cold_scans    = sort_scan_temp(scans, TC_data) #sort scans by temp
 #Get results for given field and stream, for all scans
     data                      = get_data(RC_data, stream, field)
 
@@ -167,7 +164,7 @@ def all_RC_plots(RC_data, TC_data, stream, field):
     plt.gca().xaxis.set_major_locator(MultipleLocator(128))
 
 
-def average_RC_plots(RC_data, TC_data, stream, field):
+def average_RC_plots(RC_data, stream, field):
     '''
     Makes a plot of the mean value for a given field (noise, gain, or VT50) for each
     channel in a given stream, for each temperature extreme. Uses the standard
@@ -175,14 +172,12 @@ def average_RC_plots(RC_data, TC_data, stream, field):
 
     Arguments:
     RC_data - the contents of a pre-opened RESPONSE_CURVE JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". Stream to be plotted.
     field   - Type = string, "innse", "gain", or "vt50". Field to be plotted.
     '''
 
     scans                     = get_scans(RC_data) #get all RC scans
-    warm_scans, cold_scans    = sort_scan_temp(scans, TC_data) #sort scans by temp
-#Get all data for stream and field from TC
+#Get all data for stream and field from HBI
     data                      = get_data(RC_data, stream, field)
     channels                  = get_channels(RC_data)
     component                 = get_component(RC_data) #hybrid serial number
@@ -429,7 +424,7 @@ def analyze_RC(RC_data, stream, scan, field):
     good_channels = []
     good_data     = []
     bad_data      = []
-    scans         = get_scans(RC_data) #list of all RC scans during TC
+    scans         = get_scans(RC_data) #list of all RC scans during HBI
 
 #Determine the ordinal number associated with the scan of interest (0 is first, etc.)
     for n,single_scan in enumerate(scans):
