@@ -28,7 +28,6 @@ args = parser.parse_args()
 HBI_directory = args.HBI_directory
 test_types   = args.tests
 noise_only   = args.noise_only
-histos       = args.histograms
 query_db     = args.database
 
 
@@ -61,7 +60,6 @@ TPG_plots   = []
 RC_plots    = []
 NO_plots    = []
 OCS_plots   = []
-histo_plots = []
 
 #Make PT plots
 if "PT" in test_types:
@@ -136,7 +134,7 @@ print(f"\n{GREEN}Thermal Cycling summary plots complete!{RESET}")
 
 #Make single PDF from all made plots
 print("\nMaking PDF...")
-all_plots0 = PT_plots + SD_plots + make_one_list(TPG_plots) + make_one_list(RC_plots) + NO_plots + OCS_plots + make_one_list(histo_plots) #all plots made
+all_plots0 = PT_plots + SD_plots + make_one_list(TPG_plots) + make_one_list(RC_plots) + NO_plots + OCS_plots #all plots made
 all_plots  = (make_one_list(all_plots0)) #reformat
 component  = get_component(RC_data) #module serial number
 date       = RC_data["date"][:10] #date that HBI was run
