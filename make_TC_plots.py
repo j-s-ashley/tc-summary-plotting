@@ -5,7 +5,6 @@ import json
 import argparse
 from PIL import Image
 #Import HBI plotting scripts
-import PT
 import SD
 import RC
 import NO
@@ -21,7 +20,7 @@ parser.add_argument("-d", "--HBI_directory",
 parser.add_argument("-db", "--database",
   help="Queries ATLAS ITk Production Database, instead of local files.", action='store_true')
 parser.add_argument("-t", "--tests",
-  help="Test types to be plotted (PT, SD, 3PG, 10PG, NO, OCS). If not specified, all will be plotted.", nargs="+", default = ["PT", "SD", "3PG", "10PG", "NO", "OCS"])
+  help="Test types to be plotted (SD, 3PG, 10PG, NO, OCS). If not specified, all will be plotted.", nargs="+", default = ["SD", "3PG", "10PG", "NO", "OCS"])
 parser.add_argument("-n", "--noise_only", help="When making the 3PG/10PG plots, only make plots for the noise, not the gain or VT50", action='store_true')
 args = parser.parse_args()
 
@@ -37,7 +36,6 @@ if not query_db: #if using local files
 
     #Get files
     files = fetch_files(HBI_directory)
-    PT_files   = [f'{HBI_directory}/{PT_file}' for PT_file in files["PT"]]
     SD_files   = [f'{HBI_directory}/{SD_file}' for SD_file in files["SD"]]
     TPG_files  = [f'{HBI_directory}/{TPG_file}' for TPG_file in files["TPG"]]
     RC_files   = [f'{HBI_directory}/{RC_file}' for RC_file in files["RC"]]
@@ -46,29 +44,18 @@ if not query_db: #if using local files
 
 if query_db: #if getting data from the database
 
-    PT_files, SD_files, TPG_files, RC_files, NO_files, OCS_files = db.get_files()
-    files = {'PT': PT_files,
-             'SD': SD_files,
+    SD_files, TPG_files, RC_files, NO_files, OCS_files = db.get_files()
+    files = {'SD': SD_files,
              '3PG': TPG_files,
              '10PG': RC_files,
              'NO': NO_files,
              'OCS': OCS_files} #files sorted by type
 
-PT_plots    = []
 SD_plots    = []
 TPG_plots   = []
 RC_plots    = []
 NO_plots    = []
 OCS_plots   = []
-
-#Make PT plots
-if "PT" in test_types:
-    print("\nMaking Pedestal Trim plots...")
-
-    for PT_file in PT_files:
-        PT_data = retrieve_data(PT_file)
-        PT_plots.append(PT.make_plots(PT_data))
-    print(f"\n{GREEN}Pedestal Trim plots complete!{RESET}")
 
 #Make SD plots
 if "SD" in test_types:
@@ -134,7 +121,7 @@ print(f"\n{GREEN}Thermal Cycling summary plots complete!{RESET}")
 
 #Make single PDF from all made plots
 print("\nMaking PDF...")
-all_plots0 = PT_plots + SD_plots + make_one_list(TPG_plots) + make_one_list(RC_plots) + NO_plots + OCS_plots #all plots made
+all_plots0 = SD_plots + make_one_list(TPG_plots) + make_one_list(RC_plots) + NO_plots + OCS_plots #all plots made
 all_plots  = (make_one_list(all_plots0)) #reformat
 component  = get_component(RC_data) #module serial number
 date       = RC_data["date"][:10] #date that HBI was run

@@ -57,7 +57,7 @@ def all_scans_plot(PT_data, stream):
     for scan in scans:
         good_trims, good_channels, bad_trims, bad_channels = analyze_trims(PT_data, scan, stream) #sort trims and their channels by whether or not they are marked defective for a given scan.
 
-        if scan in warm_scans:
+        if scan in scans:
             w = w + 1 #increment number of warm scans
             plt.scatter(good_channels, good_trims, color=(red_warm, green_warm[w], blue_warm), label=f"Warm PT {w}", s=0.5) #plot good warm channels
 
