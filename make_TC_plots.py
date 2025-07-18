@@ -77,7 +77,7 @@ if "NO" in test_types:
     print(f"\n{GREEN}Noise Occupancy plots complete!{RESET}")
 
 #Make HBI summary plots
-print("\nMaking Thermal Cycling summary plots...")
+print("\nMaking Hybrid Burnin summary plots...")
 
 failed_tests = []
 
