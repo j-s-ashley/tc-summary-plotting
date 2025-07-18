@@ -121,7 +121,7 @@ def fetch_files(directory):
     valid_files = [] #initialize
 #Filter out any files that are not relevent to make_TC_plots.py
     for file in files:
-        if ("TC" in file or "ColdJigRun" in file or "HVSTABILITY" in file) and file[-4:] == "json":
+        if ("BURNIN" in file or "ColdJigRun" in file or "HVSTABILITY" in file) and file[-4:] == "json":
             valid_files.append(file) #relevent files
 
         else:
@@ -143,17 +143,17 @@ def fetch_files(directory):
 
         if "MODULE_IV_AMAC_TC" in valid_file:
             sorted_files["IV"] = valid_file
-        elif "PEDESTAL_TRIM_TC" in valid_file:
+        elif "PEDESTAL_TRIM_BURNIN" in valid_file:
             PTs.append(valid_file)
-        elif "STROBE_DELAY_TC" in valid_file:
+        elif "STROBE_DELAY_BURNIN" in valid_file:
             SDs.append(valid_file)
-        elif "3PG_TC" in valid_file:
+        elif "3PG_BURNIN" in valid_file:
             TPGs.append(valid_file)
-        elif "RESPONSE_CURVE_TC" in valid_file:
+        elif "RESPONSE_CURVE_BURNIN" in valid_file:
             RCs.append(valid_file)
-        elif "NO_TC" in valid_file:
+        elif "NO_BURNIN" in valid_file:
             NOs.append(valid_file)
-        elif "OPEN_CHANNEL_SEARCH_TC" in valid_file:
+        elif "OPEN_CHANNEL_SEARCH_BURNIN" in valid_file:
             OCSs.append(valid_file)
         elif "HVSTABILITY" in valid_file:
             sorted_files["HVS"] = valid_file
@@ -364,7 +364,7 @@ def make_pdf(plots, component, date, run_number):
     run_number - Type = int. The ColdJig runNumber.
     '''
 
-    with PdfPages(f'{component}_{date}_{run_number}_TC_plots.pdf') as pdf:
+    with PdfPages(f'{component}_{date}_{run_number}_HBI_plots.pdf') as pdf:
         for plot in plots:
             pdf.savefig(plot, bbox_inches='tight')
 
