@@ -4,13 +4,12 @@ import matplotlib.pyplot as plt
 import matplotlib
 from common_functions import *
 
-def make_plots(NO_data, TC_data):
+def make_plots(NO_data):
     '''
     Organizes the making of the plots, such as where the subplots go on the figure.
 
     Arguments:
     NO_data - the contents of a pre-opened NO JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
 
     Returns:
     plot - Type = matplotlib figure. The plot made.
@@ -18,41 +17,39 @@ def make_plots(NO_data, TC_data):
     matplotlib.rcParams['font.size'] = 5
     plot = plt.figure(figsize=[8,4], dpi=50)
 
-#Make plot of all NO data throughout TC for the under stream
+#Make plot of all NO data throughout HBI for the under stream
     plt.subplot(221)
-    all_occupancy_plots(NO_data, TC_data, "Under")
+    all_occupancy_plots(NO_data, "Under")
 
-#Make plot of all NO data throughout TC for the away stream
+#Make plot of all NO data throughout HBI for the away stream
     plt.subplot(222)
-    all_occupancy_plots(NO_data, TC_data, "Away")
+    all_occupancy_plots(NO_data, "Away")
 
 #Make plot of mean NO data for the under stream
     plt.subplot(223)
-    average_occupancy_plots(NO_data, TC_data, "Under")
+    average_occupancy_plots(NO_data, "Under")
 
 #Make a plot of mean NO data for the away stream
     plt.subplot(224)
-    average_occupancy_plots(NO_data, TC_data, "Away")
+    average_occupancy_plots(NO_data, "Away")
 
     plt.tight_layout()
     plt.close('all')
 
     return plot
 
-def all_occupancy_plots(NO_data, TC_data, stream):
+def all_occupancy_plots(NO_data, stream):
     '''
     Makes a plot of all Noise Occupancy data from all of thermal cycling, colour-coded
     by test temperature, for a given stream.
 
     Arguments:
     NO_data - the contents of a pre-opened NO JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". The stream to be plotted.
     '''
 
     component              = get_component(NO_data) #hybrid serial number
-    scans                  = get_scans(NO_data) #list of all NO scans during TC
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data) #sort scan by temp
+    scans                  = get_scans(NO_data) #list of all NO scans during HBI
     chips                  = get_channels(NO_data)
 
     red_cold, red_warm, blue_cold, blue_warm, green_cold, green_warm = get_colours(warm_scans, cold_scans) #get colours for plotting
@@ -87,25 +84,23 @@ def all_occupancy_plots(NO_data, TC_data, stream):
     plt.xlabel("Chip Number")
     plt.ylabel("Occupancy")
     plt.xlim(-0.5, len(chips) - 0.5)
-    plt.title(f"{component} Occupancy Throughout TC, {stream} Stream")
+    plt.title(f"{component} Occupancy Throughout HBI, {stream} Stream")
     plt.grid(axis='x')
     if stream == 'Away':
         plt.legend(ncol=2, fontsize=5, bbox_to_anchor=(-0.1,1))
 
-def average_occupancy_plots(NO_data, TC_data, stream):
+def average_occupancy_plots(NO_data, stream):
     '''
-    Makes a plot of the mean noise occupancy throughout TC for each chip and
+    Makes a plot of the mean noise occupancy throughout HBI for each chip and
     temperature extreme for a given stream, with the standard deviation as error bars.
 
     Arguments:
     NO_data - the contents of a pre-opened NO JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". The stream to be plotted.
     '''
 
     component            = get_component(NO_data) #hybrid serial number
     chips                = get_channels(NO_data)
-    warm_data, cold_data = get_data(NO_data, TC_data, stream) #data sorted by temp
 
     #Reformat data so each sublist corresponds to all data values for a given chip, at
     #the indicated temperature
@@ -149,9 +144,9 @@ def analyze_NO(NO_data, stream, scan):
     bad_data   - Type = list of float. List of data associated with defective chips.
     '''
 
-    defects = get_defects(NO_data) #list of all NO defects from TC
+    defects = get_defects(NO_data) #list of all NO defects from HBI
     chips   = get_channels(NO_data)
-    scans   = get_scans(NO_data) #list of all NO scans from TC
+    scans   = get_scans(NO_data) #list of all NO scans from HBI
     scan_number = get_index(scan, scans) #get scans index associated with scan
 
     data = NO_data["results"][f"occupancy_mean_{stream.lower()}"][scan_number]
@@ -179,14 +174,13 @@ def analyze_NO(NO_data, stream, scan):
 
     return good_chips, good_data, bad_chips, bad_data
 
-def get_data(NO_data, TC_data, stream):
+def get_data(NO_data, stream):
     '''
-    For a given stream, retrieve all Noise Occupancy data taken throughout TC, and
+    For a given stream, retrieve all Noise Occupancy data taken throughout HBI, and
     sort it by temperature extreme.
 
     Arguments:
     NO_data - the contents of a pre-opened NO JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". The stream for which to retrieve data.
 
     Returns:
@@ -196,8 +190,7 @@ def get_data(NO_data, TC_data, stream):
                 results from a single cold test.
     '''
 
-    scans                  = get_scans(NO_data) #list of all NO scans during TC
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data) #sort scans by temp
+    scans                  = get_scans(NO_data) #list of all NO scans during HBI
 
     data = NO_data["results"][f"occupancy_mean_{stream.lower()}"] #data for stream
 

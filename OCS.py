@@ -6,14 +6,13 @@ from matplotlib.ticker import MultipleLocator
 import matplotlib
 
 
-def make_plots(OCS_data, TC_data):
+def make_plots(OCS_data):
     '''
     Organizes the making of Open Channel Search plots, such as where the subplots go
     on the figure.
 
     Arguments:
     OCS_data - the contents of a pre-opened OPEN_CHANNEL_SEARCH JSON file.
-    TC_data  - the contents of a pre-opened ColdJigRun JSON file.
 
     Returns:
     plot - Type = matplotlib figure. The plot made.
@@ -22,28 +21,28 @@ def make_plots(OCS_data, TC_data):
     matplotlib.rcParams['font.size'] = 5
     plot = plt.figure(figsize=[8,4], dpi=50)
 
-#Make plot for all OCS data from TC for the under stream
+#Make plot for all OCS data from HBI for the under stream
     plt.subplot(221)
-    all_OCS_plot(OCS_data, TC_data, "Under")
+    all_OCS_plot(OCS_data, "Under")
 
-#Make plot for all OCS data from TC for the away stream
+#Make plot for all OCS data from HBI for the away stream
     plt.subplot(222)
-    all_OCS_plot(OCS_data, TC_data, "Away")
+    all_OCS_plot(OCS_data, "Away")
 
-#Make a histogram for all OCS data from TC for the under stream
+#Make a histogram for all OCS data from HBI for the under stream
     plt.subplot(223)
-    OCS_histo(OCS_data, TC_data, "Under")
+    OCS_histo(OCS_data, "Under")
 
-#Make a histogram for all OCS data from TC for the away stream
+#Make a histogram for all OCS data from HBI for the away stream
     plt.subplot(224)
-    OCS_histo(OCS_data, TC_data, "Away")
+    OCS_histo(OCS_data, "Away")
 
     plt.tight_layout()
     plt.close('all')
 
     return plot
 
-def all_OCS_plot(OCS_data, TC_data, stream):
+def all_OCS_plot(OCS_data, stream):
     '''
     Make a plot of the noise at -10V taken during the Open Channel Search, for all OCS
     tests during thermal cycling, for a given stream. Note: this function assumes all
@@ -52,14 +51,12 @@ def all_OCS_plot(OCS_data, TC_data, stream):
 
     Arguments:
     OCS_data - the contents of a pre-opened OPEN_CHANNEL_SEARCH JSON file.
-    TC_data  - the contents of a pre-opened ColdJigRun JSON file.
     stream   - Type = string, "Under" or "Away". The stream to be plotted.
     '''
 
     component              = get_component(OCS_data) #hybrid serial number
     channels               = get_channels(OCS_data)
-    scans                  = get_scans(OCS_data) #list of all OCS scans from TC
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data) #sort scans by temp
+    scans                  = get_scans(OCS_data) #list of all OCS scans from HBI
 
     red_cold, red_warm, blue_cold, blue_warm, green_cold, green_warm = get_colours(warm_scans, cold_scans)
 
@@ -94,21 +91,20 @@ def all_OCS_plot(OCS_data, TC_data, stream):
     if stream == 'Away':
         plt.legend(markerscale=2, bbox_to_anchor=(-0.08,1))
 
-def OCS_histo(OCS_data, TC_data, stream):
+def OCS_histo(OCS_data, stream):
     '''
     Makes a histogram of the number of open channels found in a given stream, for every
-    Open Channel Search run during TC. Binned by chip.
+    Open Channel Search run during HBI. Binned by chip.
 
     Arguments:
     OCS_data - the contents of a pre-opened OPEN_CHANNEL_SEARCH JSON file.
-    TC_data  - the contents of a pre-opened ColdJigRun JSON file.
     stream   - Type = string, "Under" or "Away". The stream to be plotted.
     '''
 
     component = get_component(OCS_data) #hybrid serial number
-    defects   = get_defects(OCS_data) #list of all OCS defects found in TC
+    defects   = get_defects(OCS_data) #list of all OCS defects found in HBI
     channels  = get_channels(OCS_data)
-    scans     = get_scans(OCS_data) #list of all OCS scans from TC
+    scans     = get_scans(OCS_data) #list of all OCS scans from HBI
 
     all_defect_scans = [] #initialize
 
@@ -175,9 +171,9 @@ def analyze_OCS(OCS_data, scan, stream):
                     channels.
     '''
 
-    defects  = get_defects(OCS_data) #list of all OCS defects during TC
+    defects  = get_defects(OCS_data) #list of all OCS defects during HBI
     channels = get_channels(OCS_data)
-    scans    = get_scans(OCS_data) #list of all OCS scans from TC
+    scans    = get_scans(OCS_data) #list of all OCS scans from HBI
 
 #Determine the ordinal number associated with the scan of interest (0 is first, etc.)
     for n,single_scan in enumerate(scans):
@@ -208,15 +204,14 @@ def analyze_OCS(OCS_data, scan, stream):
     return good_channels, good_data, bad_channels, bad_data
 
 
-def get_noise(OCS_data, TC_data, stream):
+def get_noise(OCS_data, stream):
     '''
-    Retrieve all noise values from all Open Channel Search scans run during TC. As in
+    Retrieve all noise values from all Open Channel Search scans run during HBI. As in
     many functions in this script, this one also assumes all Open Channel Searches are
     done warm, but could easily be adapted if current QC procedures change.
 
     Arguments:
     OCS_data - the contents of a pre-opened OPEN_CHANNEL_SEARCH JSON file.
-    TC_data  - the contents of a pre-opened ColdJigRun JSON file.
     stream   - Type = string, "Under" or "Away". Stream for which to retrieve data.
 
     Returns:
@@ -225,7 +220,6 @@ def get_noise(OCS_data, TC_data, stream):
     '''
 
     scans                  = get_scans(OCS_data)
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data)
     data                   = OCS_data["results"][f"noise_{stream.lower()}"]
 
     warm_noise = []

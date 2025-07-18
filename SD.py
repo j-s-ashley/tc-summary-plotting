@@ -5,13 +5,12 @@ import matplotlib
 from matplotlib.ticker import MultipleLocator
 from common_functions import *
 
-def make_plots(SD_data, TC_data):
+def make_plots(SD_data):
     '''
     Organizes the plot-making (which plots go where on the figure and such).
 
     Arguments:
     SD_data - the contents of a pre-opened STROBE_DELAY JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
 
     Returns:
     plot - Type = matplotlib figure. The plot made.
@@ -19,40 +18,38 @@ def make_plots(SD_data, TC_data):
     matplotlib.rcParams['font.size'] = 5
     plot = plt.figure(figsize=[8,4], dpi=50)
 
-#Make a plot of all SD results throughout TC for under stream
+#Make a plot of all SD results throughout HBI for under stream
     plt.subplot(221)
-    all_strobes_plot(SD_data, TC_data, "Under")
+    all_strobes_plot(SD_data, "Under")
 
-#Make a plot of all SD results throughout TC for away stream
+#Make a plot of all SD results throughout HBI for away stream
     plt.subplot(222)
-    all_strobes_plot(SD_data, TC_data, "Away")
+    all_strobes_plot(SD_data, "Away")
 
 #Make a plot of average SD for under stream
     plt.subplot(223)
-    average_strobes_plot(SD_data, TC_data, "Under")
+    average_strobes_plot(SD_data, "Under")
 
 #Make a plot of average SD for away stream
     plt.subplot(224)
-    average_strobes_plot(SD_data, TC_data, "Away")
+    average_strobes_plot(SD_data, "Away")
 
     plt.tight_layout()
     plt.close('all')
 
     return plot
 
-def all_strobes_plot(SD_data, TC_data, stream):
+def all_strobes_plot(SD_data, stream):
     '''
     Makes a plot of all Strobe Delay taken during thermal cycling, colour-coded by
     test temperature, for a given stream.
 
     Arguments:
     SD_data - the contents of a pre-opened STROBE_DELAY JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". The stream to be plotted.
     '''
 
     scans                  = get_scans(SD_data) #get a list of all SD scans
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data) #sort scans by temp
     component              = get_component(SD_data) #hybrid serial number
     chips                  = get_chips(SD_data) #list of chip number
 
@@ -97,22 +94,19 @@ def all_strobes_plot(SD_data, TC_data, stream):
     if stream == 'Away':
         plt.legend(ncol=2, fontsize=5, bbox_to_anchor=(-0.1, 1))
 
-def average_strobes_plot(SD_data, TC_data, stream):
+def average_strobes_plot(SD_data, stream):
     '''
     Makes a plot of the mean strobe delay value for each channel of a given stream, for
     each temperature extreme. Use the standard deviation as error bars.
 
     Arguments:
     SD_data - the contents of a pre-opened STROBE_DELAY JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". The stream to be plotted.
     '''
 
     chips = get_chips(SD_data) #get a list of chip numbers
     scans = get_scans(SD_data) #get a list of all SD scans
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data) #sort scans by temp
 #Sort strobe delay values by temp for a given stream
-    warm_strobes, cold_strobes = get_strobes(SD_data, TC_data, stream)
 
 #Reformat so each list corresponds to all SDs at a temperature for a single chip
     warm_strobes_by_chip = np.swapaxes(warm_strobes, 0, 1)
@@ -188,14 +182,13 @@ def analyze_strobes(SD_data, scan, stream):
     return good_strobes, bad_strobes, good_chips, bad_chips
 
 
-def get_strobes(SD_data, TC_data, stream):
+def get_strobes(SD_data, stream):
     '''
     Retrieve all strobe delay values for a given stream during thermal cycling, sorted
     by test temperature.
 
     Arguments:
     SD_data - the contents of a pre-opened STROBE_DELAY JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". The stream for which to retrieve data.
 
     Returns:
@@ -206,7 +199,6 @@ def get_strobes(SD_data, TC_data, stream):
     '''
 
     scans                  = get_scans(SD_data) #get a list of all SD scans
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data) #sort scans by temp
 
     warm_strobes = [] #initialize
     cold_strobes = []

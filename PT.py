@@ -1,18 +1,17 @@
 #import libraries
-
+#TODO: This is probably nonfunctional (check last function)
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.ticker import MultipleLocator
 from common_functions import *
 
-def make_plots(PT_data, TC_data):
+def make_plots(PT_data):
     '''
     Responsible for organization of plotting (which plot goes where on the figure).
 
     Arguments:
     PT_data - the contents of a pre-opened PEDESTAL_TRIM JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
 
     Returns:
     plot - Type = matplotlib figure. The plot made.
@@ -21,36 +20,34 @@ def make_plots(PT_data, TC_data):
     plot = plt.figure(figsize=[8,4], dpi=50)
     matplotlib.rcParams['font.size'] = 5
     plt.subplot(221)
-    all_scans_plot(PT_data, TC_data, "Under") #make plot of all PTs for away stream
+    all_scans_plot(PT_data, "Under") #make plot of all PTs for away stream
 
     plt.subplot(222)
-    all_scans_plot(PT_data, TC_data, "Away") #make plot of all PTs for under stream
+    all_scans_plot(PT_data, "Away") #make plot of all PTs for under stream
 
     plt.subplot(223)
-    average_trim_plot(PT_data, TC_data, "Under") #make plot of average PTs for away stream
+    average_trim_plot(PT_data, "Under") #make plot of average PTs for away stream
 
     plt.subplot(224)
-    average_trim_plot(PT_data, TC_data, "Away") #make plot of average PTs for under stream
+    average_trim_plot(PT_data, "Away") #make plot of average PTs for under stream
 
     plt.tight_layout()
     plt.close('all')
 
     return plot
 
-def all_scans_plot(PT_data, TC_data, stream):
+def all_scans_plot(PT_data, stream):
     '''
     Makes a plot of all pedestal trim values, colour-coded by test temperature, for
     a given stream.
 
     Arguments:
     PT_data - the contents of a pre-opened PEDESTAL_TRIM JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". The stream to be plotted.
     '''
 
     component = get_component(PT_data)
     scans = get_scans(PT_data)
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data) #sort scan number by temp
     channels = get_channels(PT_data) #get a list of channel numbers
     red_cold, red_warm, blue_cold, blue_warm, green_cold, green_warm = get_colours(warm_scans, cold_scans)
 #Plot
@@ -58,7 +55,7 @@ def all_scans_plot(PT_data, TC_data, stream):
     w = -1 #initialize
     c = -1
     for scan in scans:
-        good_trims, good_channels, bad_trims, bad_channels = analyze_trims(PT_data, TC_data, scan, stream) #sort trims and their channels by whether or not they are marked defective for a given scan.
+        good_trims, good_channels, bad_trims, bad_channels = analyze_trims(PT_data, scan, stream) #sort trims and their channels by whether or not they are marked defective for a given scan.
 
         if scan in warm_scans:
             w = w + 1 #increment number of warm scans
@@ -86,14 +83,14 @@ def all_scans_plot(PT_data, TC_data, stream):
 
     plt.xlabel("Channel Number")
     plt.ylabel("Trim Value")
-    plt.title(f"{component} Pedestal Trim Results Throughout TC, {stream} Stream")
+    plt.title(f"{component} Pedestal Trim Results Throughout HBI, {stream} Stream")
     plt.xlim(0, len(channels))
     plt.grid(axis='x')
     if stream == 'Away':
         plt.legend(ncol=2, markerscale=3, fontsize=5, framealpha=0.6, bbox_to_anchor=(-0.12, 1))
     plt.gca().xaxis.set_major_locator(MultipleLocator(128))
 
-def average_trim_plot(PT_data, TC_data, stream):
+def average_trim_plot(PT_data, stream):
     '''
     Makes a plot displaying the mean pedestal trim value for each temperature extrema
     of each channel, for the specified stream. Also includes the standard deviation as
@@ -101,21 +98,19 @@ def average_trim_plot(PT_data, TC_data, stream):
 
     Arguments:
     PT_data - the contents of a pre-opened PEDESTAL_TRIM JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     stream  - Type = string, "Under" or "Away". The stream to be plotted.
     '''
 
-    warm_trims, cold_trims = get_trims(PT_data, TC_data, stream) #sort trims by temp
     channels               = get_channels(PT_data)
 
-#Reformat trims so each sublist corresponds to all warm PTs in TC for a single channel
+#Reformat trims so each sublist corresponds to all warm PTs in HBI for a single channel
     warm_trims_by_channel = np.swapaxes(warm_trims, 0, 1)
 
 #Calculate mean and standard deviation per channel
     warm_means = [np.mean(channel) for channel in warm_trims_by_channel]
     warm_stds  = [np.std(channel) for channel in warm_trims_by_channel]
 
-#Reformat trims so each sublist corresponds to all cold PTs in TC for a single channel
+#Reformat trims so each sublist corresponds to all cold PTs in HBI for a single channel
     cold_trims_by_channel = np.swapaxes(cold_trims, 0, 1)
 
 #Calculate mean and standard deviation per channel
@@ -128,7 +123,7 @@ def average_trim_plot(PT_data, TC_data, stream):
 
     plt.xlabel("Channel Number")
     plt.ylabel("Trim Value")
-    plt.title(f"Mean Trim Value Throughout TC, {stream} Stream")
+    plt.title(f"Mean Trim Value Throughout HBI, {stream} Stream")
     plt.xlim(0, len(channels))
     plt.grid(axis='x')
     plt.gca().xaxis.set_major_locator(MultipleLocator(128))
@@ -136,14 +131,13 @@ def average_trim_plot(PT_data, TC_data, stream):
         plt.legend(markerscale=3, bbox_to_anchor=(-0.2, 1))
 
 
-def analyze_trims(PT_data, TC_data, scan, stream):
+def analyze_trims(PT_data, scan, stream):
     '''
     For a given PT test and stream, sorts the channels and their respective trim values
     into "good" (not a defective channel) and "bad" (defective channel).
 
     Arguments:
     PT_data - the contents of a pre-opened PEDESTAL_TRIM JSON file.
-    TC_data - the contents of a pre-opened ColdJigRun JSON file.
     scan    - Type = string. The name of the test as it appears in the PEDESTAL_TRIM
               JSON.
     stream  - Type = string, "Under" or "Away". The stream to analyze trims for.
@@ -170,7 +164,7 @@ def analyze_trims(PT_data, TC_data, scan, stream):
 
 #results is list of list, where index corresponds to test number.
     trims    = results[index] #get results for specific scan
-    defects  = get_defects(PT_data) #get a list of all PT defects during TC
+    defects  = get_defects(PT_data) #get a list of all PT defects during HBI
     channels = get_channels(PT_data)
 
     good_channels = [] #initialize
@@ -201,13 +195,12 @@ def analyze_trims(PT_data, TC_data, scan, stream):
 
 
 
-def get_trims(PT_data, TC_data, stream):
+def get_trims(PT_data, stream):
     '''
-    For a given stream, retrieve all trims throughout TC, sorted by test temperature.
+    For a given stream, retrieve all trims throughout HBI, sorted by test temperature.
 
     Arguments:
     PT_data - the contents of a pre-opened PEDESTAL_TRIM JSON file
-    TC_data - the contents of a pre-opened ColdJigRun file
     stream  - Type = string, "Under" or "Away". The stream to get trims for.
 
     Returns:
@@ -228,7 +221,6 @@ def get_trims(PT_data, TC_data, stream):
         print(f"{YELLOW}Invalid stream type {stream} given! Must be 'Away' or 'Under'.{RESET}")
 
     scans                  = get_scans(PT_data) #retrieve all PT scans
-    warm_scans, cold_scans = sort_scan_temp(scans, TC_data) #sort scans by temp
 
     warm_trims = [] #initialize
     cold_trims = []
