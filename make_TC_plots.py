@@ -10,7 +10,6 @@ import SD
 import RC
 import NO
 import OCS
-import defect_plotting
 from common_functions import *
 import ITkPDB_matters as db
 
@@ -24,7 +23,6 @@ parser.add_argument("-db", "--database",
 parser.add_argument("-t", "--tests",
   help="Test types to be plotted (PT, SD, 3PG, 10PG, NO, OCS). If not specified, all will be plotted.", nargs="+", default = ["PT", "SD", "3PG", "10PG", "NO", "OCS"])
 parser.add_argument("-n", "--noise_only", help="When making the 3PG/10PG plots, only make plots for the noise, not the gain or VT50", action='store_true')
-parser.add_argument("-hg", "--histograms", help="Make histograms with module defect information", action='store_true')
 args = parser.parse_args()
 
 HBI_directory = args.HBI_directory
@@ -119,18 +117,6 @@ if "OCS" in test_types:
         OCS_plots.append(OCS.make_plots(OCS_data))
     print(f"\n{GREEN}Open Channel Search plots complete!{RESET}")
 
-#Make defect histograms
-if histos:
-    print("\nMaking Defect Histograms...")
-    hybrid_files = sort_files_by_hybrid(unsort_files(files), HBI_directory)
-
-    for hybrid in hybrid_files:
-        if type(hybrid_files[hybrid][0]) is not dict:
-            files_to_plot = [f"{HBI_directory}/{file}" for file in hybrid_files[hybrid]]
-        else:
-            files_to_plot = hybrid_files[hybrid]
-        histo_plots.append(defect_plotting.make_plots(files_to_plot))
-    print(f"\n{GREEN}Defect Histograms complete!{RESET}")
 #Make HBI summary plots
 print("\nMaking Thermal Cycling summary plots...")
 
