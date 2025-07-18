@@ -249,7 +249,7 @@ def get_channels(data):
                 first_field = field #first list of results for that test type
 
     elif test_type == "3PG" or test_type == "10PG": #RC
-        first_field = "gain_away"
+        first_field = "gain_mean_away"
 
     data_set = make_one_list(results[first_field][0]) #reformat first test's data
     channels = [n for n in range(len(data_set))] #one channel per data point
